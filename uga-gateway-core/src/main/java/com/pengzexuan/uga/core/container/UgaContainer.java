@@ -42,12 +42,15 @@ public class UgaContainer implements LifeCycle {
 
         if(UgaBufferHelper.isFlusher(bufferType)) {
             nettyProcessor = new UgaNettyBatchEventProcessor(this.configuration, nettyCoreProcessor);
+            log.debug("Uga buffer flusher is batch");
         }
         else if(UgaBufferHelper.isMpmc(bufferType)) {
             nettyProcessor = new UgaNettyMpmcProcessor(this.configuration, nettyCoreProcessor);
+            log.debug("Uga buffer flusher is mpmc");
         }
         else {
             this.nettyProcessor = nettyCoreProcessor;
+            log.debug("Uga buffer flusher is null");
         }
 
         nettyHttpServer = new UgaNettyHttpServer(this.configuration, this.nettyProcessor);
