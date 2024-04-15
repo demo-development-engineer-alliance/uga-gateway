@@ -1,7 +1,7 @@
 package com.pengzexuan.uga.core.client;
 
 import com.pengzexuan.uga.core.config.UgaConfiguration;
-import com.pengzexuan.uga.core.helper.AsyncHttpHelper;
+import com.pengzexuan.uga.core.helper.UgaAsyncHttpHelper;
 import com.pengzexuan.uga.core.lifecycle.LifeCycle;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.EventLoopGroup;
@@ -55,7 +55,7 @@ public class UgaNettyHttpClient implements LifeCycle {
   @Override
   public void start() {
 	  this.asyncHttpClient = new DefaultAsyncHttpClient(clientBuilder.build());
-	  AsyncHttpHelper.getInstance().initialized(asyncHttpClient);
+	  UgaAsyncHttpHelper.getInstance().initialized(asyncHttpClient);
   }
 
   /**

@@ -4,17 +4,17 @@ import org.asynchttpclient.*;
 
 import java.util.concurrent.CompletableFuture;
 
-public class AsyncHttpHelper {
+public class UgaAsyncHttpHelper {
 
 	private static final class SingletonHolder {
-		private static final AsyncHttpHelper INSTANCE = new AsyncHttpHelper();
+		private static final UgaAsyncHttpHelper INSTANCE = new UgaAsyncHttpHelper();
 	}
 	
-	private AsyncHttpHelper() {
+	private UgaAsyncHttpHelper() {
 		
 	}
 	
-	public static AsyncHttpHelper getInstance() {
+	public static UgaAsyncHttpHelper getInstance() {
 		return SingletonHolder.INSTANCE;
 	}
 	

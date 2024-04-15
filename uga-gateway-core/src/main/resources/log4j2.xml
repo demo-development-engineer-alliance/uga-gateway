@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<Configuration status="INFO" schema="Log4J-V2.0.xsd" monitorInterval="600">
+<Configuration status="trace" schema="Log4J-V2.0.xsd" monitorInterval="600">
 
     <!--日志级别：TRACE < DEBUG < INFO < WARN < ERROR < FATAL-->
     <Properties>
@@ -35,11 +35,11 @@
 	  </Appenders>
 
 	<Loggers>
-	    <Logger name="com.pengzexuan.uga.core.*" level="info" includeLocation="true">
+	    <Logger name="com.pengzexuan.uga.core.*" level="trace" includeLocation="true">
 	      <AppenderRef ref="RandomAccessFile"/>
 	    </Logger>
 
-        <Root level="info">
+        <Root level="trace">
             <Appender-Ref ref="CONSOLE"/>
             <Appender-Ref ref="RandomAccessFile"/>
         </Root>

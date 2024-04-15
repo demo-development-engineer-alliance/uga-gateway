@@ -1,9 +1,12 @@
 package com.pengzexuan.uga.core.config;
 
+import com.lmax.disruptor.*;
 import com.pengzexuan.uga.common.constants.UgaBasicConstant;
 import com.pengzexuan.uga.common.constants.UgaBufferHelper;
 import com.pengzexuan.uga.common.utils.NetUtils;
 import lombok.Data;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
@@ -42,7 +45,7 @@ public class UgaConfiguration {
     /**
      * The number of CPU cores mapped to threads in the gateway server
      */
-    private Integer processThread = Runtime.getRuntime().availableProcessors();
+    private Integer processThreadNum = Runtime.getRuntime().availableProcessors();
 
     /**
      * The Number of Netty's Boss threads
@@ -56,7 +59,7 @@ public class UgaConfiguration {
      *
      * <p>Default processThread</p>
      */
-    private Integer eventLoopGroupWorkNum = processThread;
+    private Integer eventLoopGroupWorkNum = processThreadNum;
 
     /**
      * Is EPOLL enabled
@@ -84,7 +87,7 @@ public class UgaConfiguration {
      *
      * <p>Default is equals processThread</p>
      */
-    private Integer dubboConnections = processThread;
+    private Integer dubboConnections = processThreadNum;
 
 
     /**
@@ -161,4 +164,20 @@ public class UgaConfiguration {
      * <p>Default is 6000ms</p>
      */
     private Integer httpPooledConnectionIdleTimeout = 60 * 1000;
+
+
+    @NotNull
+    public WaitStrategy getTureWaitStrategyObject() {
+        switch (this.waitStrategy) {
+            case "busySpin":
+                return new BusySpinWaitStrategy();
+            case "yielding":
+                return new YieldingWaitStrategy();
+            case "sleeping":
+                return new SleepingWaitStrategy();
+            case "blocking":
+            default:
+                return new BlockingWaitStrategy();
+        }
+    }
 }
