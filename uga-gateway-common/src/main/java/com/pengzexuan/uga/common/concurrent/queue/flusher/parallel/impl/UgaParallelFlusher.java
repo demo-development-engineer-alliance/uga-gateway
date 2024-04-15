@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,6 +27,7 @@ public class UgaParallelFlusher<E> implements UgaFlusher<E> {
 
 
 	private UgaParallelFlusher(@NotNull("Builder can't be null") Builder<E> builder) {
+
 		this.executorService = Executors
 				.newFixedThreadPool(builder.threadsNum,
 						new ThreadFactoryBuilder()
@@ -35,6 +35,8 @@ public class UgaParallelFlusher<E> implements UgaFlusher<E> {
 								.build());
 
 		this.eventListener = builder.eventListener;
+
+		this.eventTranslator = new UgaHolderEventTranslator();
 
 		RingBuffer<UgaHolder> ringBuffer = RingBuffer.create(
 				builder.producerType,
@@ -68,15 +70,22 @@ public class UgaParallelFlusher<E> implements UgaFlusher<E> {
 	 */
 	@Override
 	@SafeVarargs
-	public final void add(@NotNull("events can't be null") E... events) {
+	public final void add(E @NotNull("events can't be null") ... events) {
+
 		RingBuffer<UgaHolder> temp = ringBuffer;
+
+		if (events.length == 0) {
+			throw new IllegalArgumentException("events can't be empty");
+		}
+
 		if (temp == null) {
 			process(this.eventListener, new IllegalStateException("ParallelFlusher is closed"), events);
 			return;
 		}
+
 		try {
 			ringBuffer.publishEvents(this.eventTranslator, events);
-		} catch (NullPointerException e) {
+		} catch (Exception e) {
 			process(this.eventListener, new IllegalStateException("ParallelFlusher is closed"), events);
 		}
 	}
@@ -88,23 +97,33 @@ public class UgaParallelFlusher<E> implements UgaFlusher<E> {
 	 * @return is it ok?
 	 */
 	@Contract(pure = true)
+	@SafeVarargs
+	@NotNull
 	@Override
-	@SafeVarargs
-	public final @Nullable Boolean tryAdd(@NotNull("events can't be null") E... events) {
-		return null;
+	public final Boolean tryAdd(@NotNull("events can't be null") E... events) {
+		RingBuffer<UgaHolder> temp = ringBuffer;
+
+		if (temp == null) {
+			return false;
+		}
+
+		try {
+			return ringBuffer.tryPublishEvents(this.eventTranslator, events);
+
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
-	private static <E> void process(@NotNull("eventListener can't be null") UgaParallelEventListener<E> listener, Throwable e, E event) {
-		listener.onException(e, -1, event);
-	}
-
 	@SafeVarargs
-	private static <E> void process(UgaParallelEventListener<E> listener, Throwable e, E @NotNull("events can't be null") ... events) {
+	private static <E> void process(@NotNull("eventListener can't be null") UgaParallelEventListener<E> listener, Throwable e, E @NotNull("events can't be null") ... events) {
+
 		if (events.length == 0) {
 			throw new IllegalArgumentException("events can't be empty");
 		}
+
 		for (E event : events) {
-			process(listener, e, event);
+			listener.onException(e, -1, event);
 		}
 	}
 
@@ -289,5 +308,22 @@ public class UgaParallelFlusher<E> implements UgaFlusher<E> {
 		}
 
 	}
+
+	private class UgaHolderEventTranslator implements EventTranslatorOneArg<UgaHolder, E> {
+
+
+		/**
+		 * Translate a data representation into fields set in given event
+		 *
+		 * @param event    into which the data should be translated.
+		 * @param sequence that is assigned to event.
+		 * @param arg0     The first user specified argument to the translator
+		 */
+		@Override
+		public void translateTo(UgaHolder event, long sequence, E arg0) {
+
+		}
+	}
+
 
 }
