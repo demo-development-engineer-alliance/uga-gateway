@@ -1,21 +1,16 @@
 package com.pengzexuan.uga.core.helper;
 
 
-
 import com.pengzexuan.uga.common.enums.UgaResponseCode;
 import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaderValues;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
-
+import io.netty.handler.codec.http.*;
+import org.jetbrains.annotations.NotNull;
 
 
 public class UgaResponseHelper {
 
 
+	@NotNull
 	public static FullHttpResponse getHttpResponse(UgaResponseCode responseCode) {
 		String errorContent = "Response internal error";
 		DefaultFullHttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, 
