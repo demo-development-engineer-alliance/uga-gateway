@@ -1,6 +1,5 @@
 package com.pengzexuan.uga.core.container;
 
-import com.google.gson.Gson;
 import com.pengzexuan.uga.common.constants.UgaBufferHelper;
 import com.pengzexuan.uga.core.client.UgaNettyHttpClient;
 import com.pengzexuan.uga.core.config.UgaConfiguration;
@@ -8,7 +7,6 @@ import com.pengzexuan.uga.core.lifecycle.LifeCycle;
 import com.pengzexuan.uga.core.netty.processor.UgaNettyProcessor;
 import com.pengzexuan.uga.core.netty.processor.impl.UgaNettyBatchEventProcessor;
 import com.pengzexuan.uga.core.netty.processor.impl.UgaNettyCoreProcessor;
-import com.pengzexuan.uga.core.netty.processor.impl.UgaNettyMpmcProcessor;
 import com.pengzexuan.uga.core.sever.UgaNettyHttpServer;
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,8 +43,9 @@ public class UgaContainer implements LifeCycle {
             log.debug("Uga buffer flusher is batch");
         }
         else if(UgaBufferHelper.isMpmc(bufferType)) {
-            nettyProcessor = new UgaNettyMpmcProcessor(this.configuration, nettyCoreProcessor);
-            log.debug("Uga buffer flusher is mpmc");
+            throw new IllegalStateException("NO implementation found for Mpmc buffer type");
+//            nettyProcessor = new UgaNettyMpmcProcessor(this.configuration, nettyCoreProcessor);
+//            log.debug("Uga buffer flusher is mpmc");
         }
         else {
             this.nettyProcessor = nettyCoreProcessor;

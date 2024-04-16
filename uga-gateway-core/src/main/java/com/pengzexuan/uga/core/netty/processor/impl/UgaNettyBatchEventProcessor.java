@@ -11,12 +11,14 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Slf4j
 @Data
 public class UgaNettyBatchEventProcessor implements UgaNettyProcessor {
 
+	private static final Logger log = LoggerFactory.getLogger(UgaNettyBatchEventProcessor.class);
 	private final UgaConfiguration configuration;
 
 	private final UgaNettyCoreProcessor nettyCoreProcessor;
@@ -42,6 +44,17 @@ public class UgaNettyBatchEventProcessor implements UgaNettyProcessor {
 				.build();
 	}
 
+	/**
+	 * Process
+	 * todo: fix this doc...
+	 * @param context Context
+	 */
+	@Override
+	public void process(UgaHttpRequestContext context) {
+		log.info("#BatchEventProcessor# process request: {}", context);
+		this.parallelFlusher.add(context);
+	}
+
 	public class UgaBatchEventProcessorListener implements UgaParallelFlusher.UgaParallelEventListener<UgaHttpRequestContext> {
 
 		/**
@@ -62,7 +75,7 @@ public class UgaNettyBatchEventProcessor implements UgaNettyProcessor {
 		 * @param event Event
 		 */
 		@Override
-		public void onException(Throwable ex, long sequence, UgaHttpRequestContext event) {
+		public void onException(Throwable ex, long sequence, @NotNull UgaHttpRequestContext event) {
 			HttpRequest request = event.getRequest();
 			ChannelHandlerContext ctx = event.getCtx();
 			try {
@@ -82,17 +95,6 @@ public class UgaNettyBatchEventProcessor implements UgaNettyProcessor {
 						request, e.getMessage(), e);
 			}
 		}
-	}
-
-
-	/**
-	 * Process
-	 * todo: fix this doc...
-	 * @param context Context
-	 */
-	@Override
-	public void process(UgaHttpRequestContext context) {
-		this.parallelFlusher.add(context);
 	}
 
 	/**
